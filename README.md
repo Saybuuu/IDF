@@ -40,7 +40,7 @@ task123.people (parsed data)
 Парсинг выполняется автоматически через Materialized View.
 
 ---
-
+```text
 ## Структура проекта
 
 ```text
