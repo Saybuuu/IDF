@@ -40,7 +40,7 @@ task123.people (parsed data)
 Парсинг выполняется автоматически через Materialized View.
 
 ---
-```text
+
 ## Структура проекта
 
 ```text
@@ -58,7 +58,7 @@ IDF/
 ├── task2.py
 ├── requirements.txt
 ├── README.md
-
+```
 ### Описание файлов
 
 | Файл | Назначение |
