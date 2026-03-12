@@ -42,6 +42,8 @@ task123.people (parsed data)
 ---
 
 ## Структура проекта
+
+```text
 IDF/
 ├── click-docker/
 │ ├── clickhouse/
