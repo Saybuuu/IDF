@@ -42,20 +42,21 @@ task123.people (parsed data)
 ---
 
 ## Структура проекта
+
+```text
 IDF/
 ├── click-docker/
-│ ├── clickhouse/
-│ │ └── init/
-│ │ ├── task1.sql
-│ │ └── task3.sql
-│ ├── .env
-│ └── docker-compose.yml
-│
+│   ├── clickhouse/
+│   │   └── init/
+│   │       ├── task1.sql
+│   │       └── task3.sql
+│   ├── .env
+│   └── docker-compose.yml
 ├── .env
 ├── config.py
 ├── task2.py
 ├── requirements.txt
-├── README.md
+└── README.md
 
 ### Описание файлов
 
