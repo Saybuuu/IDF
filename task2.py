@@ -17,9 +17,7 @@ load_dotenv()
 
 
 class MaxRetriesExceeded(Exception):
-    """
-    Исключение при превышении числа попыток
-    """
+    """Исключение при превышении числа попыток"""
     pass
 
 
@@ -33,9 +31,7 @@ class DbConfig:
 
 
 def validate_env() -> DbConfig:
-    """
-    Проверяет обязательные переменные окружения и возвращает конфиг.
-    """
+    """Проверяет обязательные переменные окружения и возвращает конфиг."""
     db_host = os.getenv("CLICKHOUSE_HOST")
     db_port = os.getenv("CLICKHOUSE_PORT")
     db_user = os.getenv("CLICKHOUSE_USER")
@@ -90,7 +86,7 @@ def handle_status_code(func):
                 response = func(*args, **kwargs)
 
                 if response.status_code == 200:
-                    return response.json()
+                    return response
 
                 elif response.status_code in RETRY_STATUSES:
                     print(f"Попытка {attempt}: получен статус {response.status_code}. "
@@ -123,13 +119,12 @@ def get_raw_data(
     url: str,
     http_get = requests.get
 ) -> Optional[Dict[str, Any]]:
-    """
-    Получает данные по URL с возможностью подменить HTTP-клиент.
-    """
-    return http_get(url, timeout=10)
+    """Получает данные по URL с возможностью подменить HTTP-клиент."""
+    response = http_get(url, timeout=10)
+    return response.json()
 
 
-def get_clickhouse_client(config: DbConfig):
+def create_connection(config: DbConfig):
     return clickhouse_connect.get_client(
         host=config.db_host,
         port=config.db_port,
@@ -137,21 +132,6 @@ def get_clickhouse_client(config: DbConfig):
         password=config.db_password,
         database=config.db_name
     )
-
-
-def ensure_table_exists(client, db_name: str) -> None:
-    """
-    Создаёт таблицу raw_logs, если её ещё нет.
-    """
-    client.command(f"""
-        CREATE TABLE IF NOT EXISTS {db_name}.raw_logs (
-            dedup_key String,
-            raw_json String,
-            created_at DateTime DEFAULT now()
-        )
-        ENGINE = ReplacingMergeTree(created_at)
-        ORDER BY dedup_key
-    """)
 
 
 def build_row(raw_data: Dict[str, Any]) -> list[tuple[str, str]]:
@@ -177,21 +157,11 @@ def build_row(raw_data: Dict[str, Any]) -> list[tuple[str, str]]:
 
 
 def insert_raw_into_db(raw_data: Dict[str, Any], config: DbConfig) -> bool:
-    """
-    Вставляет сырой JSON в таблицу raw_logs.
-    Возвращает True при успехе, иначе False.
-    """
+    """Вставляет сырой JSON в таблицу raw_logs."""
     try:
-        client = get_clickhouse_client(config)
-
-        ensure_table_exists(
-            client=client,
-            db_name=config.db_name
-            )
+        client = create_connection(config)
 
         rows = build_row(raw_data)
-
-        # print(client.server_version)
 
         client.insert(
             f'{config.db_name}.raw_logs',
@@ -202,15 +172,15 @@ def insert_raw_into_db(raw_data: Dict[str, Any], config: DbConfig) -> bool:
         return True
     
     except Exception as e:
-        print(f"❌ Ошибка при вставке в ClickHouse: {type(e).__name__}")
-        print(f"  Сообщение: {e}")
+        print(f"Ошибка при вставке в ClickHouse: {type(e).__name__}")
+        print(f"Сообщение: {e}")
         
         if hasattr(e, 'response') and e.response is not None:
-            print(f"  Response status: {e.response.status_code}")
-            print(f"  Response body: {e.response.text}")
+            print(f"Статус: {e.response.status_code}")
+            print(f"Сообщение: {e.response.text}")
         
         if hasattr(e, 'code'):
-            print(f"  Код ошибки: {e.code}")
+            print(f"Код ошибки: {e.code}")
 
         return False
 
@@ -224,7 +194,7 @@ def main():
         if data is not None:
             insert_raw_into_db(raw_data=data, config=config)
         else:
-            print("Данные не получены (неустранимая ошибка запроса)")
+            print("Данные не получены")
 
     except ValueError as e:
         print(f"Ошибка конфигурации: {e}")

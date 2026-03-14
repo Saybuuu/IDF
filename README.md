@@ -1,74 +1,83 @@
-# ClickHouse + Python Test Task
+##  Задания
 
-Тестовое задание:
+### Задание 1
 
-1. Поднять ClickHouse в Docker  
-2. На Python реализовать загрузку данных из API в сыром виде (JSON)  
-3. Реализовать дедупликацию средствами ClickHouse  
-4. Сделать парсинг raw-данных через Materialized View  
-5. На выходе получить таблицу `people(craft, name, _inserted_at)`
+Поднять в докере актуальную версию Clickhouse
+
+Файл:
+
+- task1.sql 
+
+Особенности:
+
+- ENGINE = ReplacingMergeTree
+- дедупликация по hash
+- ORDER BY dedup_key
+- created_at используется как версия
+
+---
+
+### Задание 2
+
+Написать Python-скрипт, который:
+
+- получает данные из API
+- обрабатывает ошибки (429, 5xx, network)
+- делает retry с backoff
+- вставляет JSON в ClickHouse
+- не использует UPDATE/DELETE
+
+Файл:
+
+- task2.py 
+
+Особенности:
+
+- retry decorator
+- exponential backoff
+- проверка env переменных
+- hash для дедупликации
+- auto create table
+- insert only
 
 API:
+
 http://api.open-notify.org/astros.json
 
 ---
 
-## Стек
+### Задание 3
 
-- Python 3
-- requests
-- clickhouse-connect
-- Docker
-- ClickHouse
+Распарсить JSON средствами ClickHouse.
+
+Создана:
+
+- таблица people
+- materialized view
+- JSONExtract
+- ARRAY JOIN
+
+Файл:
+
+- task3.sql 
+
+Pipeline:
+
+raw_logs → MV → people
+
+Используется:
+
+- JSONExtractString
+- JSONExtractArrayRaw
+- ARRAY JOIN
 - Materialized View
-- ReplacingMergeTree
 
 ---
 
-## Архитектура
+##  Запуск
 
-Полный pipeline:
-Python script
-↓
-task123.raw_logs (raw JSON)
-↓
-Materialized View
-↓
-task123.people (parsed data)
+Из директории click-docker выполнить:
 
-Вставки выполняются только в raw таблицу.  
-Парсинг выполняется автоматически через Materialized View.
+docker run -d 
 
----
-
-## Структура проекта
-
-```text
-IDF/
-├── click-docker/
-│   ├── clickhouse/
-│   │   └── init/
-│   │       ├── task1.sql
-│   │       └── task3.sql
-│   ├── .env
-│   └── docker-compose.yml
-├── .env
-├── config.py
-├── task2.py
-├── requirements.txt
-└── README.md
-
-### Описание файлов
-
-| Файл | Назначение |
-|------|-----------|
-| docker-compose.yml | запуск ClickHouse |
-| task1.sql | создание raw таблицы |
-| task3.sql | создание people + MV |
-| task2.py | Python загрузка данных |
-| config.py | конфиг retry |
-| .env | настройки подключения |
-| requirements.txt | зависимости |
-
----
-
+затем выполнить 
