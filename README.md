@@ -78,6 +78,45 @@ raw_logs → MV → people
 
 Из директории click-docker выполнить:
 
+<<<<<<< HEAD
 docker run -d 
+=======
+Вставки выполняются только в raw таблицу.  
+Парсинг выполняется автоматически через Materialized View.
+
+---
+
+## Структура проекта
+
+```text
+IDF/
+├── click-docker/
+│ ├── clickhouse/
+│ │ └── init/
+│ │ ├── task1.sql
+│ │ └── task3.sql
+│ ├── .env
+│ └── docker-compose.yml
+│
+├── .env
+├── config.py
+├── task2.py
+├── requirements.txt
+├── README.md
+```
+### Описание файлов
+
+| Файл | Назначение |
+|------|-----------|
+| docker-compose.yml | запуск ClickHouse |
+| task1.sql | создание raw таблицы |
+| task3.sql | создание people + MV |
+| task2.py | Python загрузка данных |
+| config.py | конфиг retry |
+| .env | настройки подключения |
+| requirements.txt | зависимости |
+
+---
+>>>>>>> 804f10e0166f3c3f5276d45ca24a88a5956c7047
 
 затем выполнить 
