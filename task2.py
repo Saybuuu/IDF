@@ -124,16 +124,6 @@ def get_raw_data(
     return response.json()
 
 
-def create_connection(config: DbConfig):
-    return clickhouse_connect.get_client(
-        host=config.db_host,
-        port=config.db_port,
-        username=config.db_user,
-        password=config.db_password,
-        database=config.db_name
-    )
-
-
 def build_row(raw_data: Dict[str, Any]) -> list[tuple[str, str]]:
     """
     Подготавливает строку для вставки в ClickHouse.
@@ -159,7 +149,13 @@ def build_row(raw_data: Dict[str, Any]) -> list[tuple[str, str]]:
 def insert_raw_into_db(raw_data: Dict[str, Any], config: DbConfig) -> bool:
     """Вставляет сырой JSON в таблицу raw_logs."""
     try:
-        client = create_connection(config)
+        client = clickhouse_connect.get_client(
+        host=config.db_host,
+        port=config.db_port,
+        username=config.db_user,
+        password=config.db_password,
+        database=config.db_name
+    )
 
         rows = build_row(raw_data)
 

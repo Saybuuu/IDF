@@ -2,18 +2,7 @@
 
 ### Задание 1
 
-Поднять в докере актуальную версию Clickhouse
-
-Файл:
-
-- task1.sql 
-
-Особенности:
-
-- ENGINE = ReplacingMergeTree
-- дедупликация по hash
-- ORDER BY dedup_key
-- created_at используется как версия
+Поднять в докере актуальную версию Clickhouse 
 
 ---
 
