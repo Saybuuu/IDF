@@ -67,7 +67,7 @@ raw_logs → MV → people
 
 Из директории click-docker выполнить:
 
-docker compouse up -d 
+docker compose up -d 
 
 затем из директрии IDF выполнить: 
 
