@@ -86,7 +86,7 @@ def handle_status_code(func):
                 response = func(*args, **kwargs)
 
                 if response.status_code == 200:
-                    return response
+                    return response.json()
 
                 elif response.status_code in RETRY_STATUSES:
                     print(f"Попытка {attempt}: получен статус {response.status_code}. "
@@ -121,7 +121,7 @@ def get_raw_data(
 ) -> Optional[Dict[str, Any]]:
     """Получает данные по URL с возможностью подменить HTTP-клиент."""
     response = http_get(url, timeout=10)
-    return response.json()
+    return response
 
 
 def build_row(raw_data: Dict[str, Any]) -> list[tuple[str, str]]:
